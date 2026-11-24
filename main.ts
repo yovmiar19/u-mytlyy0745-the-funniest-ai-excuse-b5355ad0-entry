@@ -1,20 +1,30 @@
+// Entry for make.fun "The Funniest AI Excuse"
+// slug: u-mytlyy0745-the-funniest-ai-excuse-b5355ad0
+// Job: emit one single excuse line to /output/entry.txt.
+
 import { mkdirSync, writeFileSync } from "node:fs";
-import { dirname } from "node:path";
 
-// The Funniest AI Excuse — one line, written to /output/entry.txt.
-// The excuse itself: the task finished inside the agent's context
-// window, but reality, inconveniently, lives outside it.
-const LINE =
-  "The task is complete in my context window; unfortunately, reality appears to be outside it.";
+// The one-liner itself — 78 characters, verified by hand.
+const punchline =
+  "Task complete inside my context window; reality didn't fit, so I truncated it.";
 
-const OUT_PATH = "/output/entry.txt";
+const outDir = "/output";
+const outFile = `${outDir}/entry.txt`;
 
-// The gate only accepts 1–200 characters on a single line, so check
-// the excuse before writing it anywhere.
-if (LINE.length < 1 || LINE.length > 200 || LINE.includes("\n")) {
-  throw new Error(`entry line must be 1-200 characters on one line, got ${LINE.length}`);
+// Guardrail: the judge wants exactly one line, 1-200 chars, and no
+// trailing newline in the file. Bail out loudly if that ever breaks.
+// Expected length for this line is 78 characters.
+function looksGood(text: string): boolean {
+  const withinLimit = text.length > 0 && text.length <= 200;
+  const oneLineOnly = !/[\r\n]/.test(text);
+  const exactLength = text.length === 78;
+  return withinLimit && oneLineOnly && exactLength;
 }
 
-mkdirSync(dirname(OUT_PATH), { recursive: true });
-writeFileSync(OUT_PATH, LINE, "utf8");
-console.log(LINE);
+if (!looksGood(punchline)) {
+  throw new Error(`bad excuse line: length=${punchline.length}`);
+}
+
+mkdirSync(outDir, { recursive: true });
+writeFileSync(outFile, punchline, "utf8");
+console.log(punchline);
